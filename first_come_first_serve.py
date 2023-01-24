@@ -1,16 +1,60 @@
+from collections import deque
+from process import Process
+from tabulate import tabulate
+
 class FCFS:
-    def __init__(self, arrivalTimes, burstTimes):
-        #self.completionTimes = [self.completionTimes[i - 1] + burstTimes[i] if i > 0 else burstTimes[0] for i in range(len(burstTimes))]
+    """
+    The process which arrives first is executed first.
+    """
 
-        self.completionTimes = [burstTimes[0]]
-        for i in range(1, len(burstTimes)):
-            self.completionTimes.append(self.completionTimes[i - 1] + burstTimes[i])
-        self.turnAroundTimes = [CT - AT for CT, AT in zip(self.completionTimes, arrivalTimes)]
-        self.waitingTimes = [TAT - BT for TAT, BT in zip(self.turnAroundTimes, burstTimes)]
+    def __init__(self, processes):
+        self.processes = processes
+        self.number = len(processes)
+        self.arrival_times = [process.arrival_time for process in processes]
+        self.burst_times = [process.burst_time for process in processes]
+        self.completion_times = [0] * self.number  
+        self.turnaround_times = [0] * self.number
+        self.waiting_times = [0] * self.number
 
+        self.average_turnaround_time = None
+        self.average_waiting_time = None
 
-fcfs = FCFS([0, 0, 0], [3, 4, 5])
-print(fcfs.completionTimes,fcfs.turnAroundTimes, fcfs.waitingTimes)
+        self.readyQueue = deque()
 
-
+    def run(self):
+        for process in self.processes:
+            self.readyQueue.append(process)
     
+    def calculate(self):
+        t = 0
+        for process in self.readyQueue:
+            t += process.burst_time
+            process.completion_time = t
+            process.turnaround_time = process.completion_time - process.arrival_time
+            process.waiting_time = process.turnaround_time - process.burst_time 
+
+        self.completion_times = [process.completion_time for process in self.processes]
+        self.turnaround_times = [process.completion_time - process.arrival_time for process in self.processes]
+        self.waiting_times = [process.turnaround_time - process.burst_time for process in self.processes]
+
+        self.average_turnaround_time = sum(self.turnaround_times) // self.number
+        self.average_waiting_time = sum(self.waiting_times) // self.number
+    
+    def display(self):
+        table = [[process.id, process.arrival_time, process.burst_time, process.completion_time,
+                    process.turnaround_time, process.waiting_time] for process in self.processes]
+        headers = ["Process", "Arrival Times", "Burst Times", "Completion Times", "Turnaround Times", "Waiting Times"]
+        print(tabulate(table, headers = headers, tablefmt="grid"))
+
+        result = [["Average Turnaround Time", self.average_turnaround_time], ["Average Waiting Time", self.average_waiting_time]]
+        print(tabulate(result, tablefmt="grid"))
+
+p1 = Process('p1', 0, 7)
+p2 = Process('p2', 0, 2)
+p3 = Process('p3', 1, 10)
+processes = [p1, p2, p3]
+
+fcfs= FCFS(processes)
+fcfs.run()
+fcfs.calculate()
+fcfs.display()
