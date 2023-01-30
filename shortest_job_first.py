@@ -26,16 +26,34 @@ class SJF:
 
         
     def run(self) -> None:
-        for count, process in enumerate(self.processes):
-            hq.heappush(self.readyQueue, (process.burst_time, count, process))
+        """at any given moment, out of all the processes in the ready queue at that moment, 
+            the process with the lowest burst time is run first.
+            
+            if a new high priority (i.e with lower burst time) process arrives, it is put at the head of the ready queue.
+        """
+        t = 0
+        completed_count = 0
+        index = 0
+
+        while completed_count != self.number:
+            while index < self.number and self.processes[index].arrival_time <= t:
+                hq.heappush(self.readyQueue, (self.processes[index].burst_time, index))
+                index += 1
+            
+            if self.readyQueue:
+                burst_time, curr = hq.heappop(self.readyQueue)
+                curr_process = self.processes[curr]
+
+                t += curr_process.burst_time
+                curr_process.completion_time = t
+                completed_count += 1
+            else:
+                t += 1
     
     def calculate(self):
-        t = 0
-        for process in self.readyQueue:
-            t += process[2].burst_time
-            process[2].completion_time = t
-            process[2].turnaround_time = process[2].completion_time - process[2].arrival_time
-            process[2].waiting_time = process[2].turnaround_time - process[2].burst_time 
+        for process in self.processes:
+            process.turnaround_time = process.completion_time - process.arrival_time
+            process.waiting_time = process.turnaround_time - process.burst_time 
 
         self.completion_times = [process.completion_time for process in self.processes]
         self.turnaround_times = [process.completion_time - process.arrival_time for process in self.processes]
