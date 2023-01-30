@@ -9,7 +9,7 @@ class Process:
         and waiting time. 
     """
     
-    def __init__(self, id, at, bt):
+    def __init__(self, id, at, bt, priority = None):
         self.id = id
         self.arrival_time = at
         self.burst_time = bt
@@ -17,6 +17,7 @@ class Process:
         self.turnaround_time = None
         self.waiting_time = None
         self.in_queue = False
+        self.priority = priority
     
     def get_id(self):
         return self.id
