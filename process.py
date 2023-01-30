@@ -16,6 +16,7 @@ class Process:
         self.completion_time = None
         self.turnaround_time = None
         self.waiting_time = None
+        self.in_queue = False
     
     def get_id(self):
         return self.id
