@@ -18,7 +18,7 @@ class Process:
         self.waiting_time = None
         self.in_queue = False
         self.priority = priority
-    
+
     def get_id(self):
         return self.id
     
