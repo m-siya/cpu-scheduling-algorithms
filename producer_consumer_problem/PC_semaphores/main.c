@@ -37,15 +37,16 @@ int insert_item(buffer *b, buffer_item item)
     }
 }
 
-int remove_item(buffer *b, buffer_item item)
+int remove_item(buffer *b)
 {
     if (b -> count == 0)
         return -1;
     else
     {
+        buffer_item item = b -> items[b -> out];
         b -> out = (b -> out + 1) % b -> buffer_size;
         b -> count--;
-        return 0;
+        return item;
     }
 }
 
@@ -91,10 +92,8 @@ int main(int argc, char *argv[])
         pthread_create(&consumers[i], NULL, consumer, NULL);
     }
 
- 
-
-
     sleep(sleep_time);
+    exit(0);
 
 }
 
@@ -110,7 +109,7 @@ void *producer()
 
 
         /* generate a random number */
-        item = rand();
+        item = rand() % 100;
 
         sem_wait(&empty);
         pthread_mutex_lock(&mutex); //acquire mutex lock
@@ -138,16 +137,17 @@ void *consumer()
 
 
         /* generate a random number */
-        item = rand();
 
         sem_wait(&full);
         pthread_mutex_lock(&mutex); //acquire mutex lock
 
         /* critical section */
-        if (remove_item(b, item) == -1)
-            printf("Item was not inserted");
+        buffer_item item_consumed = remove_item(b);
+        if (item_consumed == -1)
+            printf("Item was not removed");
         else
-            printf("Producer produced %d \n", item);
+            
+            printf("Consumer consumed %d \n", item_consumed);
 
         pthread_mutex_unlock(&mutex);
         sem_post(&empty);
