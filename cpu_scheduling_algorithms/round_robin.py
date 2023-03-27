@@ -31,6 +31,9 @@ class RoundRobin:
         completed_count = 0
         rt = self.burst_times
         index = 0
+
+        prev, prev_process = None, None
+
         while completed_count != self.number:
             count = 0
             while self.processes[index].arrival_time <= t and count != self.number:
@@ -41,15 +44,24 @@ class RoundRobin:
                 count += 1
                 if index == self.number:
                     index = 0
-           
+
+            #if the process executed previously was not completed then we need to append it to the 
+            #end of the ready queue after accounting for those processes that arrived while the process
+            #was executing in its time quantum        
+            if prev != None and not self.processes[prev].in_queue and rt[prev] > 0:
+                self.readyQueue.append((prev, prev_process))
+                self.processes[prev].in_queue = True
+
+                 
             if self.readyQueue:
                 curr, curr_process = self.readyQueue.popleft()
                 curr_process.in_queue = False
                 
                 if self.tq < rt[curr]:
                     t += self.tq
-                    rt[curr] -= self.tq   
-                           
+                    rt[curr] -= self.tq
+                    prev, prev_process = curr, curr_process
+                    
                 else:
                     t += rt[curr]
                     rt[curr] = 0
@@ -57,8 +69,10 @@ class RoundRobin:
                     curr_process.completion_time = t             
             else:
                 t += 1
+                 
               
     def calculate(self):
+        print([process.completion_time for process in self.processes])
         for process in self.processes:
             process.turnaround_time = process.completion_time - process.arrival_time
             process.waiting_time = process.turnaround_time - process.burst_time 
@@ -67,8 +81,8 @@ class RoundRobin:
         self.turnaround_times = [process.completion_time - process.arrival_time for process in self.processes]
         self.waiting_times = [process.turnaround_time - process.burst_time for process in self.processes]
 
-        self.average_turnaround_time = sum(self.turnaround_times) // self.number
-        self.average_waiting_time = sum(self.waiting_times) // self.number
+        self.average_turnaround_time = sum(self.turnaround_times) / self.number
+        self.average_waiting_time = sum(self.waiting_times) / self.number
 
     def display(self):
         table = [[process.id, process.arrival_time, process.burst_time, process.completion_time,
@@ -80,10 +94,12 @@ class RoundRobin:
         print(tabulate(result, tablefmt="grid"))
         
 
-p1 = Process('p1', 0, 7)
-p2 = Process('p2', 0, 2)
-p3 = Process('p3', 1, 10)
-processes = [p1, p2, p3]
+p1 = Process('p1', 0, 5)
+p2 = Process('p2', 1, 3)
+p3 = Process('p3', 2, 1)
+p4 = Process('p4', 3, 2)
+p5 = Process('p5', 4, 3)
+processes = [p1, p2, p3, p4, p5]
 
 rr = RoundRobin(processes, 2)
 rr.run()
