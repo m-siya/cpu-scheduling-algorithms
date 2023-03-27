@@ -5,6 +5,8 @@ Implementations of various CPU scheduling algorithms done as part of my Operatin
 - [ ] Improve cognitive complexity of round_robin.py run() method.
 - [x] Add implementation of pre-emptive priority scheduling algorithm.
 - [ ] Add docstrings for each function of all algorithms.
+- [ ] Add overhead option for each algorithm
+
 - [ ] Separate Average waiting time and Average turn around time functions for each.
 - [ ] Try to make Gantt charts as part of display function
 
