@@ -13,3 +13,4 @@ Implementations of various CPU scheduling algorithms done as part of my Operatin
 
 
 # producer-consumer-problems
+- [ ] clean up banker's algorithm into modules, add RL 
