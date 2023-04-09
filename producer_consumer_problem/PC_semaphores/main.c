@@ -136,8 +136,6 @@ void *consumer()
         sleep(sleep_time);
 
 
-        /* generate a random number */
-
         sem_wait(&full);
         pthread_mutex_lock(&mutex); //acquire mutex lock
 
